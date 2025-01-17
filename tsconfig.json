@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es2020", // 指定 ECMAScript 的目标版本
+    "module": "es2020", // 使用 ES 模块
+    "moduleResolution": "node", // 使用 Node 的模块解析
+    "strict": true, // 启用所有严格类型检查选项
+    "jsx": "preserve", // 保留 JSX（适用于 Vue 3）
+    "esModuleInterop": true, // 允许与 CommonJS 模块交互
+    "skipLibCheck": true, // 跳过声明文件检查
+    "forceConsistentCasingInFileNames": true, // 文件名区分大小写
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [
+    "src/**/*" // 包含项目中所有的 TS/TSX 文件
+  ],
+  "exclude": [
+    "node_modules" // 排除依赖文件夹
+  ]
+}
