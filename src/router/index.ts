@@ -8,6 +8,8 @@ import UserManager from "../views/admin/UserManager.vue";
 import Index from "../views/user/index.vue";
 import Login from "../views/login.vue";
 import Forbidden from "../views/error/403.vue";
+import ForgotPassword from "../views/ForgotPassword.vue";
+import Register from "../views/Register.vue";
 
 // 定义路由
 const routes: Array<RouteRecordRaw> = [
@@ -38,6 +40,18 @@ const routes: Array<RouteRecordRaw> = [
     component: Forbidden, // 加载 403 页面
     meta: { requiresAuth: false },
   },
+  {
+    path: "/forgot-password",
+    name: "ForgotPassword",
+    component: ForgotPassword,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: Register,
+    meta: { requiresAuth: false },
+  },
 ];
 
 // 创建路由实例
@@ -47,37 +61,6 @@ const router = createRouter({
 });
 
 // 路由守卫
-router.beforeEach(async (to, from, next) => {
-  const token = localStorage.getItem("token");
-
-  // 无 token 且需要认证
-  if (to.meta.requiresAuth && !token) {
-    return next("/login");
-  }
-  if (token) {
-    try {
-      const payload = jwtDecode(token);
-      // 检查 Token 是否过期
-      if (Date.now() >= payload.exp * 1000) {
-        localStorage.removeItem("token");
-        return next("/login");
-      }
-      // 检查角色权限
-      if (to.meta.roles && !to.meta.roles.includes(payload.roles)) {
-        return next("/403"); // 跳转到 403 页面
-      }
-      // 加载动态权限
-      if (!store.state.permissions) {
-        await store.dispatch("fetchPermissions");
-      }
-    } catch (err) {
-      console.error("Invalid token:", err);
-      localStorage.removeItem("token");
-      return next("/login"); // 清除无效 token 并跳转登录
-    }
-  }
-
-  next(); // 验证通过，进入目标页面
-});
+;
 
 export default router;
