@@ -7,18 +7,17 @@ const apiClient = axios.create({
   },
 });
 
-// 设置请求拦截器附加 JWT
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      console.warn("Unauthorized. Redirecting to login.");
-      localStorage.removeItem("token");
-      window.location.href = "/"; // 跳转到登录页面
-    }
-    return Promise.reject(error);
-  }
-);
+// 注释掉认证相关的拦截器
+// apiClient.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       localStorage.removeItem("token");
+//       window.location.href = "/";
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export default {
   async getAdminPage() {

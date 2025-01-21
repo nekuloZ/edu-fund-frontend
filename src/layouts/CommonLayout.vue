@@ -48,15 +48,41 @@
       <el-aside style="background-color: #fff; width: 200px; height: 100%">
         <!-- 菜单组件 -->
         <el-menu :default-active="$route.name">
-          <el-menu-item index="BoardView" @click="navigateTo('/admin')"
-            ><el-icon><Dashboard /></el-icon>仪表盘</el-menu-item
-          >
-          <el-menu-item index="FundManager" @click="navigateTo('/admin/funds')"
-            ><el-icon><Fund /></el-icon>项目管理</el-menu-item
-          >
-          <el-menu-item index="UserManager" @click="navigateTo('/admin/users')"
-            ><el-icon><User /></el-icon>用户管理</el-menu-item
-          >
+          <el-menu-item index="BoardView" @click="navigateTo('/admin')">
+            <el-icon><Dashboard /></el-icon>
+            仪表盘
+          </el-menu-item>
+          <el-menu-item index="FundManager" @click="navigateTo('/admin/funds')">
+            <el-icon><Fund /></el-icon>
+            项目管理
+          </el-menu-item>
+          <el-sub-menu index="UserFunctions">
+            <template #title>
+              <el-icon><User /></el-icon>
+              用户功能
+            </template>
+            <el-menu-item
+              index="UserManager"
+              @click="navigateTo('/admin/users')"
+              style="text-align: right"
+            >
+              用户管理
+            </el-menu-item>
+            <el-menu-item
+              index="RoleManager"
+              @click="navigateTo('/admin/roles')"
+              style="text-align: right"
+            >
+              角色管理
+            </el-menu-item>
+            <el-menu-item
+              index="PermissionManager"
+              @click="navigateTo('/admin/permissions')"
+              style="text-align: right"
+            >
+              权限管理
+            </el-menu-item>
+          </el-sub-menu>
         </el-menu>
       </el-aside>
 
