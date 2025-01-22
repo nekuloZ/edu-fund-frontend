@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true, // 文件名区分大小写
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
     }
   },
   "include": [

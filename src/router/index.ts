@@ -10,7 +10,11 @@ import Login from "../views/login.vue";
 import Forbidden from "../views/error/403.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import Register from "../views/Register.vue";
-
+import BaseInput from "@/components/BaseInput.vue";
+import BaseButton from "@/components/BaseButton.vue"; 
+import BasePagination from "@/components/BasePagination.vue";
+import BaseDialog from "@/components/BaseDialog.vue";
+import BaseTable from "@/components/BaseTable.vue";
 // 定义路由
 const routes: Array<RouteRecordRaw> = [
   {
@@ -52,6 +56,32 @@ const routes: Array<RouteRecordRaw> = [
     component: Register,
     meta: { requiresAuth: false },
   },
+  {
+    path: "/base-input",
+    name: "BaseInput",
+    component: BaseInput,
+  },
+  {
+    path: "/base-button",
+    name: "BaseButton",
+    component: BaseButton,
+  },
+  {
+    path: "/base-pagination",
+    name: "BasePagination",
+    component: BasePagination,
+  },
+  {
+    path: "/base-dialog",
+    name: "BaseDialog",
+    component: BaseDialog,
+  },
+  {
+    path: "/base-table",
+    name: "BaseTable",
+    component: BaseTable,
+  },
+  
 ];
 
 // 创建路由实例

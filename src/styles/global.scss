@@ -1,0 +1,23 @@
+// ./src/styles/global.scss
+@import "element-plus/dist/index.css";
+@import "./element-custom.scss";
+/* 基础全局样式 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Arial", sans-serif;
+  background-color: $--bg-color-page;
+  color: $--color-text-primary;
+}
+
+th {
+  background: $--fill-color-darker;
+  color: $--color-darkgray;
+  font-weight: bold;
+  font-size: medium;
+}
+td {
+  padding: 12px 16px;
+  font-size: small;
+}
+

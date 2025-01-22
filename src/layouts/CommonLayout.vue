@@ -45,9 +45,20 @@
 
     <el-container style="height: calc(100vh - 60px)">
       <!-- 左侧菜单栏 -->
-      <el-aside style="background-color: #fff; width: 200px; height: 100%">
+      <el-aside
+        style="
+          background-color: #fff;
+          width: 220px;
+          height: 100%;
+          border-right: 1px solid #e6e6e6;
+        "
+      >
         <!-- 菜单组件 -->
-        <el-menu :default-active="$route.name">
+        <el-menu
+          :default-active="$route.name"
+          style="border-right: none; padding-top: 20px"
+          :collapse="false"
+        >
           <el-menu-item index="BoardView" @click="navigateTo('/admin')">
             <el-icon><Dashboard /></el-icon>
             仪表盘
@@ -59,26 +70,26 @@
           <el-sub-menu index="UserFunctions">
             <template #title>
               <el-icon><User /></el-icon>
-              用户功能
+              <span style="font-size: 16px; font-weight: bold; color: #409eff;">用户功能</span>
             </template>
             <el-menu-item
               index="UserManager"
               @click="navigateTo('/admin/users')"
-              style="text-align: right"
+              style="padding-left: 40px;"
             >
               用户管理
             </el-menu-item>
             <el-menu-item
               index="RoleManager"
               @click="navigateTo('/admin/roles')"
-              style="text-align: right"
+              style="padding-left: 40px;"
             >
               角色管理
             </el-menu-item>
             <el-menu-item
               index="PermissionManager"
               @click="navigateTo('/admin/permissions')"
-              style="text-align: right"
+              style="padding-left: 40px;"
             >
               权限管理
             </el-menu-item>
