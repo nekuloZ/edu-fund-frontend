@@ -1,59 +1,63 @@
 <template>
-  <div class="user-manager">
-    <!-- 搜索和筛选 -->
-    <el-row class="search-bar">
-      <BaseInput
-        v-model="searchQuery"
-        placeholder="输入用户名"
-        class="search-input"
+  <el-card style="margin-top: 20px; height: 90%">
+    <div class="user-manager">
+      <!-- 搜索和筛选 -->
+      <el-row class="search-bar">
+        <BaseInput
+          v-model="searchQuery"
+          placeholder="输入用户名"
+          class="search-input"
+        />
+        <BaseButton @click="searchUsers">搜索</BaseButton>
+      </el-row>
+
+      <!-- 用户列表 -->
+      <BaseTable
+        v-loading="loading"
+        :tableData="users"
+        :columns="columns"
+        :actions="actions"
+        :size="''"
+        :fit="true"
+        @filter-change="handleFilterChange"
+      >
+        <!-- 头像插槽 -->
+        <template #avatarSlot="{ row }">
+          <el-avatar :src="row.avatar" />
+        </template>
+
+        <!-- 角色插槽 -->
+        <template #rolesSlot="{ row }">
+          <el-tag
+            v-for="role in row.roles"
+            :key="role.id"
+            type="primary"
+            effect="plain"
+            style="margin-right: 5px"
+          >
+            {{ role.name }}
+          </el-tag>
+          <el-tag v-if="row.roles.length === 0" type="info">
+            未分配角色
+          </el-tag>
+        </template>
+      </BaseTable>
+
+      <!-- 分页 -->
+      <BasePagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :total="totalUsers"
+        layout="total, sizes, prev, pager, next, jumper"
+        @pagination-change="handlePaginationChange"
       />
-      <BaseButton @click="searchUsers">搜索</BaseButton>
-    </el-row>
-
-    <!-- 用户列表 -->
-    <BaseTable
-      :tableData="users"
-      :columns="columns"
-      :actions="actions"
-      :border="false"
-      :size="'large'"
-      :fit="true"
-      @filter-change="handleFilterChange"
-    >
-      <!-- 头像插槽 -->
-      <template #avatarSlot="{ row }">
-        <el-avatar :src="row.avatar" />
-      </template>
-
-      <!-- 角色插槽 -->
-      <template #rolesSlot="{ row }">
-        <el-tag
-          v-for="role in row.roles"
-          :key="role.id"
-          type="primary"
-          effect="plain"
-          style="margin-right: 5px"
-        >
-          {{ role.name }}
-        </el-tag>
-        <el-tag v-if="row.roles.length === 0" type="info"> 未分配角色 </el-tag>
-      </template>
-    </BaseTable>
-
-    <!-- 分页 -->
-    <BasePagination
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
-      :total="totalUsers"
-      background
-      layout="total, sizes, prev, pager, next, jumper"
-      @pagination-change="handlePaginationChange"
-    />
-  </div>
+    </div>
+  </el-card>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import { ElMessage, ElMessageBox } from "element-plus";
 
@@ -88,24 +92,15 @@ interface actions {
   handler: (row: User) => void;
 }
 // 定义响应式变量
+const route = useRoute();
+const router = useRouter();
+const loading = ref(false);
 const users = ref<User[]>([]);
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 const totalUsers = ref<number>(0);
 const searchQuery = ref<string>("");
 const selectedRole = ref<number | null>(null);
-const rolesList = ref<Role[]>([]);
-/**
- * 获取角色列表
- */
-const fetchRoles = async (): Promise<void> => {
-  try {
-    const response = await axios.get("http://localhost:3000/roles");
-    rolesList.value = response.data;
-  } catch (error) {
-    ElMessage.error("获取角色列表失败");
-  }
-};
 /**
  * 获取用户列表
  */
@@ -123,6 +118,8 @@ const fetchUsers = async () => {
     totalUsers.value = response.data.total;
   } catch (error) {
     ElMessage.error("获取用户列表失败");
+  } finally {
+    loading.value = false;
   }
 };
 /**
@@ -135,24 +132,32 @@ const searchUsers = async (): Promise<void> => {
 /**
  * 按角色筛选用户
  */
-const roleFilters = computed(() =>
-  rolesList.value.map((role) => ({
-    text: role.name, // 筛选显示的文本
-    value: role.name, // 筛选的依据
-  }))
-);
+const roleFilters = computed(() => {
+  // 从当前表格数据中提取所有角色
+  const uniqueRoles = new Set<string>();
+  users.value.forEach((user) => {
+    user.roles.forEach((role) => {
+      uniqueRoles.add(role.name);
+    });
+  });
+
+  // 转换为 filters 需要的格式
+  return Array.from(uniqueRoles).map((roleName) => ({
+    text: roleName,
+    value: roleName,
+  }));
+});
 
 // 定义表格列
 const columns = [
-  { prop: "avatar", width: "80", slot: "avatarSlot", align: "center" },
-  { prop: "username", label: "用户名", minWidth: "150" },
-  { prop: "email", label: "邮箱", minWidth: "200" },
+  { prop: "avatar", width: "80px", slot: "avatarSlot", align: "center" },
+  { prop: "username", label: "用户名" },
+  { prop: "email", label: "邮箱" },
   {
     prop: "roles",
     label: "角色",
     slot: "rolesSlot",
-    minWidth: "250",
-    filters: roleFilters,
+    filters: roleFilters.value,
     filterMethod: (value: string, row: User) =>
       row.roles.some((role) => role.name.includes(value)),
   },
@@ -181,13 +186,26 @@ const handleFilterChange = async (filters: Record<string, any>) => {
   selectedRole.value = filters.roles ? filters.roles[0] : null;
   await fetchUsers();
 };
+
+watch(
+  () => route.query,
+  async (newQuery) => {
+    currentPage.value = Number(newQuery.page) || 1;
+    pageSize.value = Number(newQuery.pageSize) || 10;
+    await fetchUsers();
+  },
+  { immediate: true }
+);
 /**
  * 处理分页大小变化
  */
 const handlePaginationChange = (page: number, size: number) => {
   currentPage.value = page;
   pageSize.value = size;
-  fetchUsers();
+  router.push({
+    path: route.path,
+    query: { page, pageSize: size, search: searchQuery.value },
+  });
 };
 /**
  * 编辑用户
@@ -217,7 +235,6 @@ const deleteUser = async (user: User): Promise<void> => {
 // 组件挂载时加载数据
 onMounted(() => {
   fetchUsers();
-  fetchRoles();
 });
 </script>
 
@@ -234,10 +251,16 @@ onMounted(() => {
     .search-input {
       width: 220px;
     }
+  }
 
-    .role-select {
-      width: 180px;
-    }
+  .el-table {
+    margin-bottom: 20px; // 调整表格与分页之间的间距
+  }
+
+  .el-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; // 增加分页与内容的距离
   }
 }
 </style>

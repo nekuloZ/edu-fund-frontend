@@ -5,6 +5,7 @@ import BaseButton from "@/components/BaseButton.vue";
 import BasePagination from "@/components/BasePagination.vue";
 import BaseDialog from "@/components/BaseDialog.vue";
 import BaseTable from "@/components/BaseTable.vue";
+import BasePopover from "@/components/BasePopover.vue";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import "element-plus/theme-chalk/index.css";
@@ -26,7 +27,9 @@ app.component("BaseButton", BaseButton);
 app.component("BasePagination", BasePagination);
 app.component("BaseDialog", BaseDialog);
 app.component("BaseTable", BaseTable);
+app.component("BasePopover", BasePopover);
 app.use(router).use(ElementPlus, { locale: zhCn }).mount("#app");
+
 
 
 

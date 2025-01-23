@@ -1,17 +1,17 @@
 <template>
   <el-pagination
-    v-model:current-page="currentPage"
-    v-model:page-size="pageSize"
+    :current-page="currentPage"
+    :page-size="pageSize"
     :total="total"
     :page-sizes="pageSizes"
     layout="total, sizes, prev, pager, next, jumper"
-    @current-change="handleCurrentChange"
-    @size-change="handleSizeChange"
+    @current-change="emitCurrentChange"
+    @size-change="emitSizeChange"
   />
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue';
+import { defineProps, defineEmits } from "vue";
 
 const props = defineProps({
   total: {
@@ -27,20 +27,31 @@ const props = defineProps({
     type: Array,
     default: () => [10, 20, 50, 100],
   },
+  currentPage: {
+    type: Number,
+    default: 1,
+  },
 });
 
-const emit = defineEmits(['update:currentPage', 'update:pageSize', 'pagination-change']);
+const emit = defineEmits([
+  "update:currentPage",
+  "update:pageSize",
+  "pagination-change",
+]);
 
-const currentPage = ref(1);
-const pageSize = ref(props.pageSize);
+function emitCurrentChange(page) {
+  emit("update:currentPage", page);
+  emit("pagination-change", {
+    currentPage: page,
+    pageSize: props.pageSize,
+  });
+}
 
-const handleCurrentChange = (page) => {
-  emit('update:currentPage', page);
-  emit('pagination-change', { currentPage: page, pageSize: pageSize.value });
-};
-
-const handleSizeChange = (size) => {
-  emit('update:pageSize', size);
-  emit('pagination-change', { currentPage: currentPage.value, pageSize: size });
-};
+function emitSizeChange(size) {
+  emit("update:pageSize", size);
+  emit("pagination-change", {
+    currentPage: props.currentPage,
+    pageSize: size,
+  });
+}
 </script>

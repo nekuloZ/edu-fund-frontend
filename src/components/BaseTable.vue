@@ -1,6 +1,7 @@
 <template>
   <el-table
     :data="tableData"
+    :max-height="maxHeight"
     :stripe="stripe"
     :border="border"
     :size="size"
@@ -73,15 +74,15 @@ interface TableAction {
 }
 
 interface TableColumn {
-   prop: string;
+  prop: string;
   label: string;
   width?: string;
   align?: string;
   slot?: string;
   defaultText?: string;
-  sortable?: boolean;  // 是否可排序
-  filters?: Array<{ text: string; value: any }>;  // 筛选项
-  filterMethod?: (value: any, row: any, column: any) => boolean;  // 自定义筛选方法
+  sortable?: boolean; // 是否可排序
+  filters?: Array<{ text: string; value: any }>; // 筛选项
+  filterMethod?: (value: any, row: any, column: any) => boolean; // 自定义筛选方法
 }
 
 const props = defineProps({
@@ -100,11 +101,11 @@ const props = defineProps({
   },
   stripe: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   border: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   size: {
     type: String,
@@ -125,6 +126,10 @@ const props = defineProps({
   filterMethod: {
     type: Function,
     default: null,
+  },
+  maxHeight: {
+    type: String,
+    default: "60vh", // 你可以根据需要设置默认值
   },
 });
 const emit = defineEmits(["action"]);

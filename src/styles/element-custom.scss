@@ -1,60 +1,18 @@
 @use "element-plus/theme-chalk/src/mixins/mixins" as *;
 @use "element-plus/theme-chalk/src/common/var" as *;
 
-/* 设置颜色 */
-$--color-primary: #409EFF;
-$--color-success: #67C23A;
-$--color-warning: #E6A23C;
-$--color-danger: #F56C6C;
-$--color-info: #909399;
-
-/* 设置文本颜色 */
-$--color-text-primary: #E5EAF3;
-$--color-text-regular: #CFD3DC;
-$--color-text-secondary: #08090a;
-$--color-text-placeholder: #8D9095;
-$--color-text-disabled: #6C6E72;
-
-/* 设置边框颜色 */
-$--border-color-darker: #636466;
-$--border-color-dark: #58585B;
-$--border-color-base: #4C4D4F;
-$--border-color-light: #414243;
-$--border-color-lighter: #363637;
-$--border-color-extra-light: #2B2B2C;
-
-/* 设置填充颜色 */
-$--fill-color-darker: #E6E8EB;
-$--fill-color-dark: #EBEDF0;
-$--fill-color-base: #F0F2F5;
-$--fill-color-light: #FAFAFA;
-$--fill-color-lighter: #FAFCFF;
-$--fill-color-extra-light: #FFFFFF;
-$--fill-color-blank: transparent;
-
-/* 基础颜色 */
-$--color-black: #000000;
-$--color-darkgray: #333;
-$--color-white: #FFFFFF;
-$--color-transparent: transparent;
-
-/* 设置背景颜色 */
-$--bg-color-page: #F2F3F5;
-$--bg-color-base: #FFFFFF;
-$--bg-color-overlay: #FFFFFF;
-
 /* 字体配置 */
-$--font-family: 'Arial', sans-serif;
+$--font-family: ""Microsoft YaHei", Arial, sans-serif";
 
 /* 字号配置 */
-$--font-size-extra-large: 24px;  // 页面级大标题
-$--font-size-large: 20px;         // 通用页面标题
-$--font-size-medium: 16px;        // 卡片大标题
-$--font-size-small: 14px;         // 导航链接文本、正文文本
-$--font-size-extra-small: 12px;   // 辅助说明文字
+$--font-size-extra-large: 36px; // 通用页面标题
+$--font-size-large: 24px; // 通用页面标题
+$--font-size-medium: 16px; // 卡片大标题
+$--font-size-small: 14px; // 导航链接文本、正文文本
+$--font-size-extra-small: 12px; // 辅助说明文字
 
 /* 字体权重 */
-$--font-weight-bold: 600;  // Medium
+$--font-weight-bold: 600; // Medium
 $--font-weight-normal: 400; // Regular
 
 /* 行高配置 */
@@ -67,7 +25,6 @@ $--line-height-24: 32px;
 /* Element Plus 默认字体样式覆盖 */
 :root {
   --el-font-family: #{$--font-family};
-  --el-font-size-extra-large: #{$--font-size-extra-large};
   --el-font-size-large: #{$--font-size-large};
   --el-font-size-medium: #{$--font-size-medium};
   --el-font-size-small: #{$--font-size-small};
@@ -119,6 +76,3 @@ $--line-height-24: 32px;
   font-weight: var(--el-font-weight-normal);
   line-height: var(--el-line-height-12);
 }
-
-/* 重新应用 Element Plus 的样式 */
-@import "element-plus/theme-chalk/src/index";
