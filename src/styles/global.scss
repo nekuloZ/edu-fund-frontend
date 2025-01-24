@@ -1,6 +1,7 @@
 // ./src/styles/global.scss
-@import "element-plus/dist/index.css";
-@import "./element-custom.scss";
+@use "element-plus/dist/index.css";
+@use "./element-custom.scss";
+
 /* 基础全局样式 */
 body {
   margin: 0;

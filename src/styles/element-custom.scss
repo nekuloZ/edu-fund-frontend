@@ -1,8 +1,7 @@
 @use "element-plus/theme-chalk/src/mixins/mixins" as *;
 @use "element-plus/theme-chalk/src/common/var" as *;
-
 /* 字体配置 */
-$--font-family: ""Microsoft YaHei", Arial, sans-serif";
+$--font-family: "'PingFang SC', Inter, 'Helvetica Neue', Helvetica,  'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif";
 
 /* 字号配置 */
 $--font-size-extra-large: 36px; // 通用页面标题

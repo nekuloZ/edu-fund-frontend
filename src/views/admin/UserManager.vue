@@ -1,7 +1,7 @@
 <template>
   <el-card style="margin-top: 20px; height: 90%">
     <div class="user-manager">
-      <!-- 搜索和筛选 -->
+      <!-- 搜索框 -->
       <el-row class="search-bar">
         <BaseInput
           v-model="searchQuery"
@@ -13,13 +13,11 @@
 
       <!-- 用户列表 -->
       <BaseTable
-        v-loading="loading"
         :tableData="users"
         :columns="columns"
         :actions="actions"
-        :size="''"
+        :size="'large'"
         :fit="true"
-        @filter-change="handleFilterChange"
       >
         <!-- 头像插槽 -->
         <template #avatarSlot="{ row }">
@@ -56,17 +54,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { ElMessage, ElMessageBox } from "element-plus";
-
-/** 定义角色接口 */
-interface Role {
-  id: number;
-  name: string;
-  permissions?: string[];
-}
 
 /** 定义用户接口 */
 interface User {
@@ -74,7 +64,7 @@ interface User {
   username: string;
   email: string;
   avatar: string;
-  roles: Role[];
+  roles: { id: number; name: string }[];
 }
 /** 定义表格列接口 */
 interface columns {
@@ -92,15 +82,12 @@ interface actions {
   handler: (row: User) => void;
 }
 // 定义响应式变量
-const route = useRoute();
-const router = useRouter();
-const loading = ref(false);
 const users = ref<User[]>([]);
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 const totalUsers = ref<number>(0);
 const searchQuery = ref<string>("");
-const selectedRole = ref<number | null>(null);
+
 /**
  * 获取用户列表
  */
@@ -110,18 +97,16 @@ const fetchUsers = async () => {
       params: {
         page: currentPage.value,
         pageSize: pageSize.value,
-        search: searchQuery.value,
-        roleId: selectedRole.value || undefined, // 只有在选择了角色时才传递
+        search: searchQuery.value || undefined,
       },
     });
     users.value = response.data.users;
     totalUsers.value = response.data.total;
   } catch (error) {
     ElMessage.error("获取用户列表失败");
-  } finally {
-    loading.value = false;
   }
 };
+
 /**
  * 搜索用户
  */
@@ -129,24 +114,6 @@ const searchUsers = async (): Promise<void> => {
   currentPage.value = 1;
   await fetchUsers();
 };
-/**
- * 按角色筛选用户
- */
-const roleFilters = computed(() => {
-  // 从当前表格数据中提取所有角色
-  const uniqueRoles = new Set<string>();
-  users.value.forEach((user) => {
-    user.roles.forEach((role) => {
-      uniqueRoles.add(role.name);
-    });
-  });
-
-  // 转换为 filters 需要的格式
-  return Array.from(uniqueRoles).map((roleName) => ({
-    text: roleName,
-    value: roleName,
-  }));
-});
 
 // 定义表格列
 const columns = [
@@ -157,9 +124,6 @@ const columns = [
     prop: "roles",
     label: "角色",
     slot: "rolesSlot",
-    filters: roleFilters.value,
-    filterMethod: (value: string, row: User) =>
-      row.roles.some((role) => role.name.includes(value)),
   },
 ];
 
@@ -181,31 +145,19 @@ const actions = [
   },
 ];
 
-const handleFilterChange = async (filters: Record<string, any>) => {
-  console.log("筛选条件:", filters);
-  selectedRole.value = filters.roles ? filters.roles[0] : null;
-  await fetchUsers();
-};
-
-watch(
-  () => route.query,
-  async (newQuery) => {
-    currentPage.value = Number(newQuery.page) || 1;
-    pageSize.value = Number(newQuery.pageSize) || 10;
-    await fetchUsers();
-  },
-  { immediate: true }
-);
 /**
  * 处理分页大小变化
  */
-const handlePaginationChange = (page: number, size: number) => {
+const handlePaginationChange = ({
+  currentPage: page,
+  pageSize: size,
+}: {
+  currentPage: number;
+  pageSize: number;
+}) => {
   currentPage.value = page;
   pageSize.value = size;
-  router.push({
-    path: route.path,
-    query: { page, pageSize: size, search: searchQuery.value },
-  });
+  fetchUsers();
 };
 /**
  * 编辑用户

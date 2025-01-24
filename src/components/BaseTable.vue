@@ -10,8 +10,8 @@
     :header-cell-style="{
       background: '#E6E8EB',
       color: '#303133',
-      fontWeight: 'bold',
       fontSize: 'medium',
+      fontFamily: 'var(--el-font-family)',
     }"
   >
     <el-table-column

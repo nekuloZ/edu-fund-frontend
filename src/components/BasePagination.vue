@@ -5,13 +5,13 @@
     :total="total"
     :page-sizes="pageSizes"
     layout="total, sizes, prev, pager, next, jumper"
-    @current-change="emitCurrentChange"
-    @size-change="emitSizeChange"
+    @size-change="handleSizeChange"
+    @current-change="handleCurrentChange"
   />
 </template>
 
-<script setup>
-import { defineProps, defineEmits } from "vue";
+<script setup lang="ts">
+import { defineProps, defineEmits, computed } from "vue";
 
 const props = defineProps({
   total: {
@@ -39,7 +39,7 @@ const emit = defineEmits([
   "pagination-change",
 ]);
 
-function emitCurrentChange(page) {
+function handleCurrentChange(page: number) {
   emit("update:currentPage", page);
   emit("pagination-change", {
     currentPage: page,
@@ -47,7 +47,7 @@ function emitCurrentChange(page) {
   });
 }
 
-function emitSizeChange(size) {
+function handleSizeChange(size: number) {
   emit("update:pageSize", size);
   emit("pagination-change", {
     currentPage: props.currentPage,
