@@ -11,6 +11,7 @@ import Forbidden from "../views/error/403.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import Register from "../views/Register.vue";
 import RoleManager from "../views/admin/RoleManager.vue";
+import PermissionManager from "../views/admin/PermissionManager.vue";
 // 定义路由
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,6 +33,7 @@ const routes: Array<RouteRecordRaw> = [
       { path: "funds", name: "FundManager", component: FundManager },
       { path: "users", name: "UserManager", component: UserManager },
       { path: "roles", name: "RoleManager", component: RoleManager },
+      { path: "permissions", name: "PermissionManager", component: PermissionManager },
     ],
     meta: { requiresAuth: true, roles: ["Admin"] }, // 修改为 roles 数组
 

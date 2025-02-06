@@ -25,9 +25,9 @@
       />
     </div>
 
-    <!-- 编辑角色的对话框 -->
+    <!-- 编辑/添加角色的对话框 -->
     <el-dialog
-      title="角色编辑"
+      title="角色管理"
       v-model="editDialogVisible"
       width="40%"
       @close="resetEditForm"
@@ -38,6 +38,23 @@
         </el-form-item>
         <el-form-item label="角色描述">
           <el-input v-model="editForm.description" type="textarea" />
+        </el-form-item>
+        <el-form-item label="关联权限">
+          <el-select
+            v-model="editForm.permissions"
+            multiple
+            filterable
+            placeholder="选择关联权限"
+            style="width: 100%"
+            value-key="id"
+          >
+            <el-option
+              v-for="permission in availablePermissions"
+              :key="permission.id"
+              :label="permission.name"
+              :value="permission"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
 
@@ -58,6 +75,13 @@ interface Role {
   id: number;
   name: string;
   description: string;
+  permissions: Permission[]; // 存储权限对象数组，而不是 ID
+}
+
+interface Permission {
+  id: number;
+  name: string;
+  code: string;
 }
 
 interface TableColumn {
@@ -71,10 +95,14 @@ const roles = ref<Role[]>([]);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalRoles = ref(0);
-// 原来的搜索相关变量和方法已不再使用
-// const searchQuery = ref("");
 const editDialogVisible = ref(false);
-const editForm = ref<Role>({ id: 0, name: "", description: "" });
+const editForm = ref<Role>({
+  id: 0,
+  name: "",
+  description: "",
+  permissions: [],
+});
+const availablePermissions = ref<Permission[]>([]);
 
 // 表格列配置
 const columns: TableColumn[] = [
@@ -105,23 +133,29 @@ const actions = [
 const fetchRoles = async () => {
   try {
     const response = await axios.get("http://localhost:3000/roles", {
-      params: {
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        // search: searchQuery.value,  // 搜索参数已去除
-      },
+      params: { page: currentPage.value, pageSize: pageSize.value },
     });
 
-    console.log("API 返回数据:", response.data);
-
-    if (Array.isArray(response.data)) {
-      roles.value = response.data;
+    if (response.data) {
+      roles.value = response.data.map((role: Role) => ({
+        ...role,
+        permissions: role.permissions || [],
+      }));
       totalRoles.value = response.data.length;
-    } else {
-      ElMessage.error("角色数据格式不正确");
     }
   } catch (error) {
     ElMessage.error("获取角色列表失败");
+  }
+};
+
+// 获取权限列表
+const fetchPermissions = async () => {
+  try {
+    const response = await axios.get("http://localhost:3000/permissions");
+    availablePermissions.value = response.data.permissions;
+    console.log(availablePermissions.value);
+  } catch (error) {
+    ElMessage.error("获取权限列表失败");
   }
 };
 
@@ -140,7 +174,12 @@ const handlePaginationChange = ({
 
 // 编辑角色
 const editRole = (role: Role) => {
-  editForm.value = { ...role };
+  editForm.value = {
+    ...role,
+    permissions: role.permissions.map(
+      (p) => availablePermissions.value.find((perm) => perm.id === p.id) || p
+    ),
+  };
   editDialogVisible.value = true;
 };
 
@@ -153,13 +192,18 @@ const addRole = () => {
 // 提交编辑（编辑或新增）
 const submitEdit = async () => {
   try {
+    const payload = {
+      ...editForm.value,
+      permissionIds: editForm.value.permissions.map((p) => p.id),
+    };
+
     if (editForm.value.id) {
       await axios.patch(
         `http://localhost:3000/roles/${editForm.value.id}`,
-        editForm.value
+        payload
       );
     } else {
-      await axios.post("http://localhost:3000/roles", editForm.value);
+      await axios.post("http://localhost:3000/roles", payload);
     }
     ElMessage.success("操作成功");
     editDialogVisible.value = false;
@@ -187,12 +231,13 @@ const deleteRole = async (role: Role) => {
 
 // 重置表单
 const resetEditForm = () => {
-  editForm.value = { id: 0, name: "", description: "" };
+  editForm.value = { id: 0, name: "", description: "", permissions: [] };
 };
 
 // 初始化数据
 onMounted(() => {
   fetchRoles();
+  fetchPermissions();
 });
 </script>
 
@@ -203,7 +248,7 @@ onMounted(() => {
   .add-role-bar {
     margin-bottom: 20px;
     display: flex;
-    justify-content: flex-end; // 可根据需求调整位置
+    justify-content: flex-end;
   }
 
   .el-table {

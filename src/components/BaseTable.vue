@@ -10,7 +10,7 @@
     :header-cell-style="{
       background: '#E6E8EB',
       color: '#303133',
-      fontSize: 'medium'
+      fontSize: 'medium',
     }"
   >
     <el-table-column
