@@ -1,7 +1,5 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import BaseInput from "@/components/BaseInput.vue";
-import BaseButton from "@/components/BaseButton.vue";
 import BasePagination from "@/components/BasePagination.vue";
 import BaseDialog from "@/components/BaseDialog.vue";
 import BaseTable from "@/components/BaseTable.vue";
@@ -22,8 +20,6 @@ const app = createApp(App);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
-app.component("BaseInput", BaseInput);
-app.component("BaseButton", BaseButton);
 app.component("BasePagination", BasePagination);
 app.component("BaseDialog", BaseDialog);
 app.component("BaseTable", BaseTable);

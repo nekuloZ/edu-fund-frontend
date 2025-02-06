@@ -10,12 +10,9 @@
     "forceConsistentCasingInFileNames": true, // 文件名区分大小写
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["src/*"]
     }
   },
-  "include": [
-    "src/**/*" // 包含项目中所有的 TS/TSX 文件
-  ],
   "exclude": [
     "node_modules" // 排除依赖文件夹
   ]

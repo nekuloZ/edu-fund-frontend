@@ -10,11 +10,7 @@ import Login from "../views/login.vue";
 import Forbidden from "../views/error/403.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import Register from "../views/Register.vue";
-import BaseInput from "@/components/BaseInput.vue";
-import BaseButton from "@/components/BaseButton.vue"; 
-import BasePagination from "@/components/BasePagination.vue";
-import BaseDialog from "@/components/BaseDialog.vue";
-import BaseTable from "@/components/BaseTable.vue";
+import RoleManager from "../views/admin/RoleManager.vue";
 // 定义路由
 const routes: Array<RouteRecordRaw> = [
   {
@@ -35,8 +31,10 @@ const routes: Array<RouteRecordRaw> = [
       { path: "", name: "BoardView", component: BoardView },
       { path: "funds", name: "FundManager", component: FundManager },
       { path: "users", name: "UserManager", component: UserManager },
+      { path: "roles", name: "RoleManager", component: RoleManager },
     ],
     meta: { requiresAuth: true, roles: ["Admin"] }, // 修改为 roles 数组
+
   },
   {
     path: "/403",
@@ -55,33 +53,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "Register",
     component: Register,
     meta: { requiresAuth: false },
-  },
-  {
-    path: "/base-input",
-    name: "BaseInput",
-    component: BaseInput,
-  },
-  {
-    path: "/base-button",
-    name: "BaseButton",
-    component: BaseButton,
-  },
-  {
-    path: "/base-pagination",
-    name: "BasePagination",
-    component: BasePagination,
-  },
-  {
-    path: "/base-dialog",
-    name: "BaseDialog",
-    component: BaseDialog,
-  },
-  {
-    path: "/base-table",
-    name: "BaseTable",
-    component: BaseTable,
-  },
-  
+  }
 ];
 
 // 创建路由实例

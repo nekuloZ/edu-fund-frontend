@@ -3,12 +3,13 @@
     <div class="user-manager">
       <!-- 搜索框 -->
       <el-row class="search-bar">
-        <BaseInput
+        <el-input
           v-model="searchQuery"
           placeholder="输入用户名"
           class="search-input"
+          clearable
         />
-        <BaseButton @click="searchUsers">搜索</BaseButton>
+        <el-button type="primary" @click="searchUsers">搜索</el-button>
       </el-row>
 
       <!-- 用户列表 -->
@@ -50,11 +51,59 @@
         @pagination-change="handlePaginationChange"
       />
     </div>
+    <!-- 编辑用户的对话框 -->
+    <el-dialog
+      title="角色分配"
+      v-model="editDialogVisible"
+      width="50%"
+      @close="resetEditForm"
+    >
+      <el-form :model="editForm" label-width="80px" style="display: flex;">
+        <el-form-item label="用户名">
+          <el-input
+            v-model="editForm.username"
+
+
+            disabled
+            style="width: fit-content; min-width: 150px; max-width: 100%"
+          />
+        </el-form-item>
+
+        <el-form-item label="邮箱">
+          <el-input
+            v-model="editForm.email"
+            disabled
+            style="width: fit-content; min-width: 150px; max-width: 100%"
+          />
+        </el-form-item>
+
+        <el-form-item label="角色">
+          <el-select
+            v-model="editForm.roles"
+            multiple
+            placeholder="请选择角色"
+            style="width: fit-content; min-width: 150px; max-width: 100%"
+          >
+            <el-option
+              v-for="role in Roles"
+              :key="role.id"
+              :label="role.name"
+              :value="role.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitEdit">确定</el-button>
+      </template>
+    </el-dialog>
   </el-card>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { ElMessage, ElMessageBox } from "element-plus";
 
@@ -65,6 +114,11 @@ interface User {
   email: string;
   avatar: string;
   roles: { id: number; name: string }[];
+}
+// 定义角色接口
+interface Role {
+  id: number;
+  name: string;
 }
 /** 定义表格列接口 */
 interface columns {
@@ -81,16 +135,15 @@ interface actions {
   icon: string;
   handler: (row: User) => void;
 }
+
 // 定义响应式变量
 const users = ref<User[]>([]);
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 const totalUsers = ref<number>(0);
 const searchQuery = ref<string>("");
-
-/**
- * 获取用户列表
- */
+const Roles = ref<{ id: number; name: string }[]>([]);
+// 获取用户列表
 const fetchUsers = async () => {
   try {
     const response = await axios.get("http://localhost:3000/users", {
@@ -107,9 +160,21 @@ const fetchUsers = async () => {
   }
 };
 
-/**
- * 搜索用户
- */
+// 获取角色列表
+const fetchRoles = async (): Promise<void> => {
+  try {
+    const response = await axios.get("http://localhost:3000/roles");
+    Roles.value = response.data.map((role: Role) => ({
+      id: role.id,
+      name: role.name,
+    })); // 只取 id 和 name
+  } catch (error) {
+    ElMessage.error("获取角色列表失败");
+  }
+};
+
+// 搜索用户
+
 const searchUsers = async (): Promise<void> => {
   currentPage.value = 1;
   await fetchUsers();
@@ -124,6 +189,16 @@ const columns = [
     prop: "roles",
     label: "角色",
     slot: "rolesSlot",
+    filters: computed(() => {
+      const allRoles = new Set();
+      users.value.forEach((user) => {
+        user.roles.forEach((role) => allRoles.add(role.name));
+      });
+      return Array.from(allRoles).map((role) => ({ text: role, value: role }));
+    }),
+    filterMethod(value: string, row: User) {
+      return row.roles.some((role) => role.name === value);
+    },
   },
 ];
 
@@ -145,9 +220,7 @@ const actions = [
   },
 ];
 
-/**
- * 处理分页大小变化
- */
+// 处理分页大小变化
 const handlePaginationChange = ({
   currentPage: page,
   pageSize: size,
@@ -159,16 +232,41 @@ const handlePaginationChange = ({
   pageSize.value = size;
   fetchUsers();
 };
-/**
- * 编辑用户
- */
-const editUser = (user: User): void => {
-  console.log("编辑用户:", user);
-};
 
-/**
- * 删除用户
- */
+// 编辑用户，打开对话框并初始化编辑数据
+const editDialogVisible = ref<boolean>(false);
+const editForm = ref<User>({
+  id: 0,
+  username: "",
+  email: "",
+  avatar: "",
+  roles: [],
+});
+
+// 克隆用户数据到编辑表单
+const editUser = (user: User): void => {
+  editForm.value = { ...user };
+  editDialogVisible.value = true;
+};
+// 提交编辑数据
+const submitEdit = async (): Promise<void> => {
+  try {
+    await axios.patch(
+      `http://localhost:3000/users/${editForm.value.id}`,
+      editForm.value
+    );
+    ElMessage.success("更新成功");
+    editDialogVisible.value = false;
+    fetchUsers();
+  } catch (error) {
+    ElMessage.error("更新失败");
+  }
+};
+// 重置表单数据
+const resetEditForm = (): void => {
+  editForm.value = { id: 0, username: "", email: "", avatar: "", roles: [] };
+};
+// 删除用户
 const deleteUser = async (user: User): Promise<void> => {
   try {
     await ElMessageBox.confirm(`确定要删除用户 ${user.username} 吗？`, "警告", {
@@ -187,6 +285,7 @@ const deleteUser = async (user: User): Promise<void> => {
 // 组件挂载时加载数据
 onMounted(() => {
   fetchUsers();
+  fetchRoles();
 });
 </script>
 
