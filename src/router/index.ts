@@ -1,70 +1,231 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import { jwtDecode } from "jwt-decode";
-import store from "@/store/index";
-import AdminLayout from "../layouts/CommonLayout.vue";
-import BoardView from "../views/admin/BoardView.vue";
-import FundManager from "../views/admin/FundManager.vue";
-import UserManager from "../views/admin/UserManager.vue";
-import Index from "../views/user/index.vue";
-import Login from "../views/login.vue";
-import Forbidden from "../views/error/403.vue";
-import ForgotPassword from "../views/ForgotPassword.vue";
-import Register from "../views/Register.vue";
-import RoleManager from "../views/admin/RoleManager.vue";
-import PermissionManager from "../views/admin/PermissionManager.vue";
-// 定义路由
+// src/router/index.ts
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+
+// 定义所有路由
+// 采用 Vue Router 4 的懒加载方式
+// 并在路由中添加了 meta 字段用于权限验证
 const routes: Array<RouteRecordRaw> = [
+  // 默认重定向到仪表盘
   {
-    path: "/",
-    name: "index",
-    component: Index,
+    path: '/',
+    redirect: '/dashboard',
+    meta: { requiresAuth: true }
   },
+  // 认证模块：登录、注册页面
   {
-    path: "/login",
-    name: "Login",
-    component: Login,
-    meta: { requiresAuth: false }, // 显式设置不需要认证
-  },
-  {
-    path: "/admin",
-    component: AdminLayout,
+    path: '/auth',
+    name: 'Auth',
+    component: () => import('@/views/Auth/AuthLayout.vue'), // 可创建一个布局组件，内部含有 <router-view>
     children: [
-      { path: "", name: "BoardView", component: BoardView },
-      { path: "funds", name: "FundManager", component: FundManager },
-      { path: "users", name: "UserManager", component: UserManager },
-      { path: "roles", name: "RoleManager", component: RoleManager },
-      { path: "permissions", name: "PermissionManager", component: PermissionManager },
-    ],
-    meta: { requiresAuth: true, roles: ["Admin"] }, // 修改为 roles 数组
-
+      {
+        path: 'login',
+        name: 'Login',
+        component: () => import('@/views/Auth/Login.vue')
+      },
+      {
+        path: 'register',
+        name: 'Register',
+        component: () => import('@/views/Auth/Register.vue')
+      }
+    ]
+  },
+  // 用户管理模块
+  {
+    path: '/user',
+    name: 'User',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/User/UserLayout.vue'),
+    children: [
+      {
+        path: 'profile',
+        name: 'UserProfile',
+        component: () => import('@/views/User/UserProfile.vue')
+      },
+      {
+        path: 'management',
+        name: 'UserManagement',
+        component: () => import('@/views/User/UserManagement.vue')
+      }
+    ]
+  },
+  // 基金机构管理模块
+  {
+    path: '/institution',
+    name: 'Institution',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Institution/InstitutionLayout.vue'),
+    children: [
+      {
+        path: 'list',
+        name: 'InstitutionList',
+        component: () => import('@/views/Institution/InstitutionList.vue')
+      },
+      {
+        path: 'detail/:id',
+        name: 'InstitutionDetail',
+        component: () => import('@/views/Institution/InstitutionDetail.vue'),
+        props: true
+      }
+    ]
+  },
+  // 项目管理模块
+  {
+    path: '/project',
+    name: 'Project',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Project/ProjectLayout.vue'),
+    children: [
+      {
+        path: 'list',
+        name: 'ProjectList',
+        component: () => import('@/views/Project/ProjectList.vue')
+      },
+      {
+        path: 'detail/:id',
+        name: 'ProjectDetail',
+        component: () => import('@/views/Project/ProjectDetail.vue'),
+        props: true
+      }
+    ]
+  },
+  // 基金项目申请管理模块
+  {
+    path: '/application',
+    name: 'Application',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Application/ApplicationLayout.vue'),
+    children: [
+      {
+        path: 'form',
+        name: 'ApplicationForm',
+        component: () => import('@/views/Application/ApplicationForm.vue')
+      },
+      {
+        path: 'list',
+        name: 'ApplicationList',
+        component: () => import('@/views/Application/ApplicationList.vue')
+      },
+      {
+        path: 'detail/:id',
+        name: 'ApplicationDetail',
+        component: () => import('@/views/Application/ApplicationDetail.vue'),
+        props: true
+      }
+    ]
+  },
+  // 审核与审批模块
+  {
+    path: '/review',
+    name: 'Review',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Review/ReviewLayout.vue'),
+    children: [
+      {
+        path: 'list',
+        name: 'ReviewList',
+        component: () => import('@/views/Review/ReviewList.vue')
+      },
+      {
+        path: 'detail/:id',
+        name: 'ReviewDetail',
+        component: () => import('@/views/Review/ReviewDetail.vue'),
+        props: true
+      }
+    ]
+  },
+  // 拨款与财务管理模块
+  {
+    path: '/disbursement',
+    name: 'Disbursement',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Disbursement/DisbursementLayout.vue'),
+    children: [
+      {
+        path: 'list',
+        name: 'DisbursementList',
+        component: () => import('@/views/Disbursement/DisbursementList.vue')
+      },
+      {
+        path: 'detail/:id',
+        name: 'DisbursementDetail',
+        component: () => import('@/views/Disbursement/DisbursementDetail.vue'),
+        props: true
+      }
+    ]
+  },
+  // 数据统计与报告模块
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Dashboard/DataStatistics.vue')
   },
   {
-    path: "/403",
-    name: "Forbidden",
-    component: Forbidden, // 加载 403 页面
-    meta: { requiresAuth: false },
+    path: '/report',
+    name: 'Report',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Dashboard/Report.vue')
   },
+  // 通知与消息模块
   {
-    path: "/forgot-password",
-    name: "ForgotPassword",
-    component: ForgotPassword,
-    meta: { requiresAuth: false },
+    path: '/notification',
+    name: 'Notification',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Notification/NotificationLayout.vue'),
+    children: [
+      {
+        path: 'list',
+        name: 'NotificationList',
+        component: () => import('@/views/Notification/NotificationList.vue')
+      },
+      {
+        path: 'detail/:id',
+        name: 'NotificationDetail',
+        component: () => import('@/views/Notification/NotificationPage.vue'),
+        props: true
+      }
+    ]
   },
+  // 系统管理（后台管理）模块
   {
-    path: "/register",
-    name: "Register",
-    component: Register,
-    meta: { requiresAuth: false },
+    path: '/system',
+    name: 'System',
+    meta: { requiresAuth: true, isAdmin: true },
+    component: () => import('@/views/System/SystemLayout.vue'),
+    children: [
+      {
+        path: 'role-management',
+        name: 'RoleManagement',
+        component: () => import('@/views/System/RoleManagement.vue')
+      },
+      {
+        path: 'system-settings',
+        name: 'SystemSettings',
+        component: () => import('@/views/System/SystemSettings.vue')
+      }
+    ]
+  },
+  // 404 Not Found 页面
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue')
   }
-];
+]
 
-// 创建路由实例
 const router = createRouter({
   history: createWebHistory(),
-  routes,
-});
+  routes
+})
 
-// 路由守卫
-;
+// 全局路由守卫示例：检查需要认证的页面
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token') // 假设 token 存储在 localStorage
+  if (to.meta.requiresAuth && !token) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
+})
 
-export default router;
+export default router

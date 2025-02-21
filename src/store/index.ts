@@ -1,18 +1,6 @@
-import { createStore } from "vuex";
+// src/store/index.ts
+import { createPinia } from 'pinia'
 
-export default createStore({
-  state: {
-    permissions: null,
-  },
-  mutations: {
-    setPermissions(state, permissions) {
-      state.permissions = permissions;
-    },
-  },
-  actions: {
-    async fetchPermissions({ commit }) {
-      // TODO: 实现权限获取逻辑
-      commit("setPermissions", []);
-    },
-  },
-});
+// 创建并导出 Pinia 实例
+const pinia = createPinia()
+export default pinia
