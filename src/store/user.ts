@@ -1,6 +1,5 @@
-// src/store/user.ts
 import { defineStore } from "pinia";
-import { LoginResponse, LoginDto, User } from "@/types/api"; // 从类型定义中引入相关类型
+import { LoginDto, LoginResponse, User } from "@/types/api";
 import {
   loginApi,
   registerApi,
@@ -10,45 +9,63 @@ import {
 
 export const useUserStore = defineStore("user", {
   state: () => ({
-    token: "" as string,
-    userInfo: null as User | null,
-    roles: [] as string[],
-    permissions: [] as string[],
-    isLoading: false as boolean,
-    error: "" as string,
+    token: "" as string, // 登录成功返回的 JWT token
+    userInfo: null as User | null, // 当前用户详细信息
+    roles: [] as string[], // 当前用户角色数组
+    permissions: [] as string[], // 当前用户权限数组
+    loading: false as boolean, // 异步操作加载状态
+    error: "" as string, // 全局错误信息
   }),
   getters: {
-    isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => state.roles.includes("admin"),
+    // 判断用户是否已登录
+    isAuthenticated(state): boolean {
+      return !!state.token;
+    },
+    // 判断用户是否具有管理员权限
+    isAdmin(state): boolean {
+      return state.roles.includes("admin");
+    },
   },
   actions: {
+    // 登录操作：提交登录数据，保存 token 并加载用户信息
     async login(payload: LoginDto) {
-      this.isLoading = true;
+      this.loading = true;
       try {
         const res: LoginResponse = await loginApi(payload);
         this.token = res.access_token;
-        // 此处可调用 fetchUserProfile() 来加载用户信息和权限
+        // 登录成功后，加载用户详细信息，包括角色和权限
         await this.fetchUserProfile();
       } catch (error: any) {
         this.error = error.message || "登录失败";
       } finally {
-        this.isLoading = false;
+        this.loading = false;
       }
     },
+    // 注册操作：提交注册数据，注册成功后可自动登录或跳转至登录页面
     async register(payload: any) {
-      // 调用注册 API，注册成功后可以选择自动登录或跳转至登录页面
+      this.loading = true;
+      try {
+        await registerApi(payload);
+        // 注册成功后，可选择自动登录或提示用户前往登录页面
+      } catch (error: any) {
+        this.error = error.message || "注册失败";
+      } finally {
+        this.loading = false;
+      }
     },
+    // 加载当前用户信息
     async fetchUserProfile() {
       try {
         const profile: User = await fetchUserProfileApi();
         this.userInfo = profile;
-        // 假设 profile 中包含角色与权限信息
+        // 假设接口返回的用户信息包含角色与权限字段
         this.roles = profile.roles || [];
         this.permissions = profile.permissions || [];
       } catch (error: any) {
         this.error = error.message || "加载用户信息失败";
       }
     },
+    // 更新用户信息
     async updateProfile(updatedData: Partial<User>) {
       try {
         const updatedProfile: User = await updateUserProfileApi(updatedData);
@@ -57,6 +74,7 @@ export const useUserStore = defineStore("user", {
         this.error = error.message || "更新信息失败";
       }
     },
+    // 注销操作：清空所有用户状态
     logout() {
       this.token = "";
       this.userInfo = null;
