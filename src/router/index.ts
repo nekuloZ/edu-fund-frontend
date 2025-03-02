@@ -237,12 +237,60 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/dev/login",
     name: "Login",
-    component: () => import("@/views/Auth/login.vue"),
+    component: () => import("@/views/Auth/Enter.vue"),
   },
   {
     path: "/dev/register",
     name: "Register",
     redirect: "/dev/login?form=register",
+  },
+  {
+    path: "/dev/system",
+    name: "System",
+    component: () => import("@/views/System/CommonLayout.vue"),
+    redirect: "/dev/system/dashboard",
+    children: [
+      {
+        path: "users",
+        name: "UserManagement",
+        component: () => import("@/views/System/UserManagement.vue"),
+      },
+      {
+        path: "dashboard",
+        name: "Dashboard",
+        component: () => import("@/views/System/Dashboard.vue"),
+      },
+      // {
+      //   path: "institutions",
+      //   name: "InstitutionManagement",
+      //   component: () => import("@/views/System/InstitutionManagement.vue"),
+      // },
+      // {
+      //   path: "projects",
+      //   name: "ProjectManagement",
+      //   component: () => import("@/views/System/ProjectManagement.vue"),
+      // },
+      // {
+      //   path: "review",
+      //   name: "ReviewManagement",
+      //   component: () => import("@/views/System/ReviewManagement.vue"),
+      // },
+      // {
+      //   path: "finance",
+      //   name: "FinanceManagement",
+      //   component: () => import("@/views/System/FinanceManagement.vue"),
+      // },
+      // {
+      //   path: "reports",
+      //   name: "ReportManagement",
+      //   component: () => import("@/views/System/ReportManagement.vue"),
+      // },
+      // {
+      //   path: "settings",
+      //   name: "SystemSettings",
+      //   component: () => import("@/views/System/SystemSettings.vue"),
+      // },
+    ],
   },
   // {
   //   path: '/dev/auth/register',
